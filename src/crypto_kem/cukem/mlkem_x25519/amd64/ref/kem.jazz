@@ -1,0 +1,36 @@
+from Jade require "crypto_kem/kyber/kyber768/amd64/ref/indcpa.jinc"
+from Jade require "crypto_kem/xwing/amd64/ref/scalarmult.jinc"
+from Jade require "common/tofromstack.jinc"
+
+//skp is sk pointer
+//pkp is pk pointer
+
+//external functions already use all registers so we allways need to spill
+
+#[returnaddress="stack"] // What does this do? 
+fn cukem_k_pke_mlkem_x25519_keygen_derand(reg u64 pkp, reg u64 skp, reg ptr u8[X25519_SECRETKEYBYTES+d_BYTES+s_BYTES] coinsp)
+{
+    __fromstack32u8(skp, coinsp[d_BYTES:X25519_SECRETKEYBYTES]); //skX=random(32)
+
+    () = #spill(pkp, skp, coinsp);
+    scalarmult_base(pkp, skp); // pkX = [skX]BASE
+    () = #unspill(pkp, skp, coinsp);
+
+    pkp += X25519_PUBLICKEYBYTES;
+    skp += X25519_SECRETKEYBYTES;
+
+    () = #spill(pkp, skp, coinsp);
+    __indcpa_keypair_derand(pkp, skp, coinsp[0:d_BYTES]);
+    () = #unspill(pkp, skp, coinsp);
+
+    skp += MLKEM_PKE_SECRETKEYBYTES; // no need to do the same for pkp because I need it after
+
+    __fromstack16u8(skp, coinsp[d_BYTES+X25519_SECRETKEYBYTES:s_BYTES]); //s=random(16)
+
+    skp += s_BYTES;
+    
+    inline int i;
+    for i=0 to MLKEM_PKE_PUBLICKEYBYTES {
+        [:u8 skp + i] = [:u8 pkp + i];
+    }
+}

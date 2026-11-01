@@ -4,3 +4,5 @@ libjade-*
 .vscode
 *.so
 *.csv
+__pycache__
+.venv

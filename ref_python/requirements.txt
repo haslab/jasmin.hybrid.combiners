@@ -1,0 +1,4 @@
+kyber-py==1.2.0
+packaging==25.0
+pycryptodome==4.2.0
+wheel==0.46.1
