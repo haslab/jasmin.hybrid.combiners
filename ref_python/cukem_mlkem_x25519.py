@@ -32,14 +32,14 @@ def f(k, data):
     return KMAC128.new(key=k, data=data, mac_len=32).digest()
 
 def KeyGen():
+    skX = urandom(32)
+
+    pkX = x25519.X(skX, x25519.BASE)
+
     d = urandom(32)
     pkM, skM  = ML_KEM_768._k_pke_keygen(d)
 
     s = urandom(16) # lambda = 128?
-
-    skX = urandom(32)
-
-    pkX = x25519.X(skX, x25519.BASE)
 
     pk, sk = (pkX, pkM), (skX, skM, s, pkM) # added pkM to sk to be available in Decaps
 
@@ -48,14 +48,14 @@ def KeyGen():
 def KeyGen_derand(coins):
     assert len(coins) == 80 # 32*2+16
 
+    skX = coins[32:64]
+
+    pkX = x25519.X(skX, x25519.BASE)
+
     d = coins[:32]
     pkM, skM  = ML_KEM_768._k_pke_keygen(d)
 
-    skX = coins[32:64]
-
     s = coins[64:]
-
-    pkX = x25519.X(skX, x25519.BASE)
 
     pk, sk = (pkX, pkM), (skX, skM, s, pkM) # added pkM to sk to be available in Decaps
 
