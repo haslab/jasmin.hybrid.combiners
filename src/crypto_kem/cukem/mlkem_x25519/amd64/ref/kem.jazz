@@ -8,7 +8,6 @@ require "params.jinc"
 
 //external functions already use all registers so we allways need to spill
 
-//#[returnaddress="stack"] // What does this do? 
 fn cukem_k_pke_mlkem_x25519_keygen_derand(reg u64 pkp, reg u64 skp, reg ptr u8[X25519_SECRETKEYBYTES+d_BYTES+s_BYTES] coinsp)
 {
     __fromstack32u8(skp, coinsp[d_BYTES:X25519_SECRETKEYBYTES]); //skX=random(32)
